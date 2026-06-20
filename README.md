@@ -1,4 +1,4 @@
-# Gmail Intelligence Assistant
+# GMAIL RAG Assistant JAVA
 
 A local-first Gmail RAG assistant built with Java 21, Spring Boot, Spring AI dependencies, PostgreSQL, pgvector, Flyway, Thymeleaf, and the Gmail API.
 
