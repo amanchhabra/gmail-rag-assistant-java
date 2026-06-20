@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Gmail')}"></head>
+<body>
+<nav th:replace="~{layout :: nav}"></nav>
+<main>
+    <h1>Gmail Connection</h1>
+    <p th:if="${connectedEmail == null}">No Gmail account is connected.</p>
+    <p th:if="${connectedEmail != null}">Connected as <strong th:text="${connectedEmail}"></strong></p>
+    <form th:if="${connectedEmail == null}" th:action="@{/gmail/connect}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <button type="submit">Connect Gmail</button>
+    </form>
+    <form th:if="${connectedEmail != null}" th:action="@{/gmail/disconnect}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <button type="submit" class="danger">Disconnect Gmail</button>
+    </form>
+</main>
+</body>
+</html>

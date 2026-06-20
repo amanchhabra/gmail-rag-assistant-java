@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: gmail-intelligence-assistant
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/gmail_intelligence}
+    username: ${DATABASE_USERNAME:gmail}
+    password: ${DATABASE_PASSWORD:gmail}
+  flyway:
+    enabled: true
+  ai:
+    openai:
+      api-key: ${SPRING_AI_API_KEY:}
+      base-url: ${SPRING_AI_BASE_URL:https://api.openai.com}
+      chat:
+        options:
+          model: ${SPRING_AI_CHAT_MODEL:gpt-4.1-mini}
+      embedding:
+        options:
+          model: ${SPRING_AI_EMBEDDING_MODEL:text-embedding-3-small}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  encryption-key: ${APP_ENCRYPTION_KEY:}
+  gmail:
+    client-id: ${GOOGLE_CLIENT_ID:}
+    client-secret: ${GOOGLE_CLIENT_SECRET:}
+    redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/oauth2/gmail/callback}
+  ai:
+    api-key: ${SPRING_AI_API_KEY:}
+    base-url: ${SPRING_AI_BASE_URL:https://api.openai.com}
+    chat-model: ${SPRING_AI_CHAT_MODEL:gpt-4.1-mini}
+    embedding-model: ${SPRING_AI_EMBEDDING_MODEL:text-embedding-3-small}
+    embedding-dimensions: ${SPRING_AI_EMBEDDING_DIMENSIONS:1536}
+  retrieval:
+    top-k: 6
+    minimum-similarity: 0.15
+  chunking:
+    chunk-size: 3000
+    overlap: 200

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Import')}"></head>
+<body>
+<nav th:replace="~{layout :: nav}"></nav>
+<main>
+    <h1>Import Emails</h1>
+    <form id="import-form" th:action="@{/import}" method="post" class="stack">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <label>Time range
+            <select name="period">
+                <option th:each="period : ${periods}"
+                        th:value="${period.name()}"
+                        th:text="${period.label}"
+                        th:selected="${period == selectedPeriod}"></option>
+            </select>
+        </label>
+        <label>Maximum messages
+            <input name="maxMessages" type="number" min="1" max="500" th:value="${maxMessages ?: 100}">
+        </label>
+        <button id="import-button" type="submit">Start Import</button>
+        <div id="import-status" class="import-status" role="status" aria-live="polite" hidden>
+            <div class="import-status-heading">
+                <span id="import-spinner" class="spinner" aria-hidden="true"></span>
+                <strong id="import-status-message">Importing and indexing emails...</strong>
+            </div>
+            <progress id="import-progress" value="0" max="100"></progress>
+            <div class="import-stats">
+                <span>Processed <strong id="processed-count">0</strong></span>
+                <span>Imported <strong id="imported-count">0</strong></span>
+                <span>Skipped <strong id="skipped-count">0</strong></span>
+                <span>Failed <strong id="failed-count">0</strong></span>
+            </div>
+        </div>
+    </form>
+    <section th:if="${result != null}">
+        <h2>Import Summary</h2>
+        <p>Imported: <strong th:text="${result.imported()}"></strong></p>
+        <p>Skipped: <strong th:text="${result.skipped()}"></strong></p>
+        <p>Failed: <strong th:text="${result.failed()}"></strong></p>
+    </section>
+</main>
+<script>
+    const form = document.getElementById('import-form');
+    const button = document.getElementById('import-button');
+    const statusPanel = document.getElementById('import-status');
+
+    form.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const button = document.getElementById('import-button');
+        button.disabled = true;
+        button.textContent = 'Importing...';
+        statusPanel.hidden = false;
+        document.getElementById('import-spinner').hidden = false;
+        document.getElementById('import-status-message').classList.remove('error-text');
+        updateStatus({processed: 0, imported: 0, skipped: 0, failed: 0, requested: form.maxMessages.value});
+
+        try {
+            const response = await fetch('/import/start', {method: 'POST', body: new FormData(form)});
+            if (!response.ok) {
+                throw new Error('Unable to start import');
+            }
+            const started = await response.json();
+            await pollStatus(started.jobId);
+        } catch (error) {
+            finish('Import could not be started. Please try again.', true);
+        }
+    });
+
+    async function pollStatus(jobId) {
+        const response = await fetch('/import/status/' + encodeURIComponent(jobId));
+        if (!response.ok) {
+            throw new Error('Unable to read import status');
+        }
+        const status = await response.json();
+        updateStatus(status);
+        if (status.state === 'RUNNING') {
+            await new Promise(resolve => window.setTimeout(resolve, 1000));
+            return pollStatus(jobId);
+        }
+        if (status.state === 'COMPLETED') {
+            const progress = document.getElementById('import-progress');
+            progress.max = Math.max(1, status.processed);
+            progress.value = status.processed;
+            finish('Import complete.', false);
+            return;
+        }
+        finish(status.error || 'Import failed. Please try again.', true);
+    }
+
+    function updateStatus(status) {
+        document.getElementById('processed-count').textContent = status.processed;
+        document.getElementById('imported-count').textContent = status.imported;
+        document.getElementById('skipped-count').textContent = status.skipped;
+        document.getElementById('failed-count').textContent = status.failed;
+        const progress = document.getElementById('import-progress');
+        progress.max = Math.max(1, Number(status.requested));
+        progress.value = Number(status.processed);
+        document.getElementById('import-status-message').textContent =
+            'Processed ' + status.processed + ' of up to ' + status.requested + ' emails';
+    }
+
+    function finish(message, failed) {
+        button.disabled = false;
+        button.textContent = 'Start Import';
+        document.getElementById('import-spinner').hidden = true;
+        const messageElement = document.getElementById('import-status-message');
+        messageElement.textContent = message;
+        messageElement.classList.toggle('error-text', failed);
+    }
+</script>
+</body>
+</html>

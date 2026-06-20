@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Dashboard')}"></head>
+<body>
+<nav th:replace="~{layout :: nav}"></nav>
+<main>
+    <h1>Gmail Intelligence</h1>
+    <section class="grid">
+        <article>
+            <h2>Gmail</h2>
+            <p th:text="${connectedEmail == null ? 'Not connected' : connectedEmail}"></p>
+            <a class="button" th:href="@{/gmail}">Manage Gmail</a>
+        </article>
+        <article>
+            <h2>Local Index</h2>
+            <p><span th:text="${emailCount}">0</span> emails</p>
+            <p><span th:text="${chunkCount}">0</span> chunks</p>
+            <a class="button" th:href="@{/import}">Import Emails</a>
+        </article>
+        <article>
+            <h2>Configuration</h2>
+            <p>Google OAuth: <strong th:text="${gmailConfigured ? 'Configured' : 'Missing'}"></strong></p>
+            <p>AI provider: <strong th:text="${aiConfigured ? 'Configured' : 'Missing'}"></strong></p>
+            <a class="button" th:href="@{/ask}">Ask Questions</a>
+        </article>
+    </section>
+</main>
+</body>
+</html>

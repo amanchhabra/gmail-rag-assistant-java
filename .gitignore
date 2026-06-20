@@ -1,0 +1,12 @@
+.env
+credentials.json
+data/
+tokens/
+*.key
+application-secrets.yml
+target/
+.idea/
+.vscode/
+*.iml
+*.log
+.DS_Store

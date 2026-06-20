@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+  flyway:
+    enabled: false
+app:
+  encryption-key: test-encryption-key-with-32-chars
+  gmail:
+    client-id: test-client
+    client-secret: test-secret
+    redirect-uri: http://localhost/oauth2/gmail/callback
+  ai:
+    api-key: test-key
+    base-url: http://localhost
+    chat-model: test-chat
+    embedding-model: test-embedding
+    embedding-dimensions: 4
+  retrieval:
+    top-k: 6
+    minimum-similarity: 0.15
+  chunking:
+    chunk-size: 100
+    overlap: 10

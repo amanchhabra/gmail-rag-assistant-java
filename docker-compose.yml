@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: gmail-intelligence-postgres
+    environment:
+      POSTGRES_DB: gmail_intelligence
+      POSTGRES_USER: gmail
+      POSTGRES_PASSWORD: gmail
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gmail -d gmail_intelligence"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data:
