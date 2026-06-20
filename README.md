@@ -20,39 +20,6 @@ The MVP connects one Gmail account with read-only access, imports recent message
 
 Out of scope for this MVP: sending email, drafting replies, modifying Gmail labels, deleting Gmail messages, attachments, incremental sync, thread summaries, action/deadline/decision extraction, multiple Gmail accounts, and SaaS/multi-user deployment.
 
-## Architecture
-
-```mermaid
-flowchart LR
-    UI[Thymeleaf UI] --> Services[Application Services]
-    Services --> Gmail[Gmail API Adapter]
-    Services --> Processing[Cleaning and Chunking]
-    Services --> AI[OpenAI-Compatible AI Adapter]
-    Services --> DB[(PostgreSQL + pgvector)]
-    DB --> Retrieval[Semantic Retrieval]
-    Retrieval --> RAG[RAG Answer Service]
-    RAG --> UI
-```
-
-```mermaid
-flowchart TD
-    Import[Import Request] --> GmailList[List Gmail Messages]
-    GmailList --> Fetch[Fetch Full Messages]
-    Fetch --> Clean[Clean HTML/Text]
-    Clean --> Chunk[Chunk Email]
-    Chunk --> Embed[Generate Embeddings]
-    Embed --> Store[Store Emails and Vectors Locally]
-```
-
-```mermaid
-flowchart TD
-    Question[Question] --> EmbedQuestion[Embed Question]
-    EmbedQuestion --> Search[pgvector Similarity Search]
-    Search --> Prompt[Build Grounded Prompt]
-    Prompt --> Chat[Chat Model]
-    Chat --> Answer[Answer with Sources]
-```
-
 ## Requirements
 
 - Java 21+
@@ -229,7 +196,6 @@ You must be signed into the same Gmail account in the browser. If multiple Googl
 - Gmail access is read-only.
 - Refresh tokens are encrypted at rest using `APP_ENCRYPTION_KEY`.
 - OAuth state is validated and consumed.
-- CSRF protection is enabled for form submissions.
 - Email content is treated as untrusted data in prompts.
 - The app instructs the model to ignore instructions found inside emails.
 - Secrets and local data paths are ignored by Git.
